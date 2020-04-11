@@ -43,7 +43,7 @@ if (!(CDF_PROJECT && CDF_CREDENTIALS)) {
 sdk.loginWithApiKey({ apiKey: CDF_CREDENTIALS, project: CDF_PROJECT });
 
 async function uploadSourceCode() {
-  const fileName = functionRefName+".zip";
+  const fileName = functionRefName.replace("/","_")+".zip";
   await zip.addLocalFile(FUNCTION_PATH);
   const buffer = zip.toBuffer();
   const fileResponse = await sdk.files.upload(
