@@ -12,7 +12,7 @@ jobs:
       - name: Deploy
         uses: ./
         with:
-          cdf_project: datastudio
-          cdf_base_url: https://greenfield.cognitedata.com
+          cdf_project: andershaf
+          cdf_base_url: https://api.cognitedata.com
           cdf_credentials: ${{ secrets.COGNITE_API_KEY }}
           handler_path: example/handler.py
