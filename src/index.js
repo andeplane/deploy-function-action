@@ -122,12 +122,7 @@ async function handlePush() {
   const functionName = functionRefName;
   const externalId = functionName;
   await deleteFunction(functionName);
-  if (process.env.DELETE_PR_FUNCTION) {
-    return;
-  }
-  
   await deployFunction(fileResponse.id, functionName, externalId);
-  
 }
 
 async function handlePR() {
@@ -136,6 +131,9 @@ async function handlePR() {
   const functionName = GITHUB_REPOSITORY+"/"+GITHUB_HEAD_REF;
   const externalId = functionName;
   await deleteFunction(functionName);
+  if (process.env.DELETE_PR_FUNCTION) {
+    return;
+  }
   await deployFunction(fileResponse.id, functionName, externalId);
 }
 
