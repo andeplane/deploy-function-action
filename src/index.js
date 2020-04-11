@@ -18,9 +18,13 @@ const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY;
 
 const GITHUB_EVENT_NAME = process.env.GITHUB_EVENT_NAME;
 
+const GITHUB_REF = process.env.GITHUB_REF;
+
 const GITHUB_SHA = process.env.GITHUB_SHA.substring(0,7);
 
 const functionRefName = GITHUB_REPOSITORY+":"+GITHUB_SHA;
+
+console.log(`Handling event ${GITHUB_EVENT_NAME} on ${GITHUB_REF}`);
 
 const sdk = new CogniteClient({
   baseUrl: CDF_BASE_URL,
@@ -56,13 +60,7 @@ async function uploadSourceCode() {
   return fileResponse;
 }
 
-async function deployFunction()
-
-async function run() {
-  const user = await sdk.login.status();
-  core.debug(`Logged in as user ${user.user}`);
-  const fileResponse = await uploadSourceCode();
-
+async function deployFunction(fileId) {
   try {
     const functionResponse = await sdk.post(
       `/api/playground/projects/${CDF_PROJECT}/functions`,
@@ -70,8 +68,8 @@ async function run() {
         data: {
           items: [
             {
-              name: 'Deploy function github action example',
-              fileId: fileResponse.id,
+              name: functionRefName,
+              fileId: fileId,
             },
           ],
         },
@@ -84,6 +82,14 @@ async function run() {
     core.setFailed(ex.message);
     throw ex;
   }
+}
+
+async function run() {
+  const user = await sdk.login.status();
+  core.debug(`Logged in as user ${user.user}`);
+  const fileResponse = await uploadSourceCode();
+
+  await deployFunction(fileResponse.id);
 }
 run()
   .then(() => {
