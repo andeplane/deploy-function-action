@@ -112,7 +112,8 @@ async function awaitDeployedFunction(externalId) {
       const status = functionResponse.data.items[0].status;
       return status === "Ready";
     }
-
+    core.debug(`Awaiting function ${externalId} to become ready`);
+    console.log(`Awaiting function ${externalId} to become ready`);
     while (true) {
       const ready = await functionIsReady(externalId);
       if (ready) {
@@ -133,6 +134,8 @@ async function awaitDeployedFunction(externalId) {
 
 async function deployFunction(fileId, functionName, externalId) {
   try {
+    core.debug(`Deploying function ${functionName} (${externalId})`);
+    console.log(`Deploying function ${functionName} (${externalId})`);
     const functionResponse = await sdk.post(
       `/api/playground/projects/${CDF_PROJECT}/functions`,
       {
@@ -172,15 +175,16 @@ async function handlePush() {
   // Deploy function with :sha
   const functionName = functionRefName;
   const externalId = functionName;
-  await deleteFunction(functionName);
+  await deleteFunction(externalId);
   await deployFunction(fileResponse.id, functionName, externalId);
   
   // Delete :latest and recreate immediately. This will hopefully be fast
   const functionNameLatest = GITHUB_REPOSITORY+":latest"
-  await deleteFunction(functionNameLatest);
-  await deployFunction(fileResponse.id, functionNameLatest, externalId);
+  const externalIdLatest = functionNameLatest;
+  await deleteFunction(externalIdLatest);
+  await deployFunction(fileResponse.id, functionNameLatest, externalIdLatest);
   // Delete function with :sha
-  await deleteFunction(functionName);
+  await deleteFunction(externalId);
 }
 
 async function handlePR() {
