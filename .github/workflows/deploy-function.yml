@@ -1,0 +1,18 @@
+name: Deploy Cognite Function
+on: [push]
+jobs:
+  deploy:
+    name: Deploy
+    # This job runs on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Pretend to test
+        run: echo "AlL tEStS PaSsED"
+      - name: Deploy
+        uses: ./
+        with:
+          cdf_project: datastudio
+          cdf_base_url: https://greenfield.cognitedata.com
+          cdf_credentials: ${{ secrets.COGNITE_API_KEY }}
+          handler_path: example/handler.py

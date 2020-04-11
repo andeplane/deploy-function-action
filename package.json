@@ -1,0 +1,31 @@
+{
+  "name": "deploy-function-action",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cognitedata/deploy-function-action.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cognitedata/deploy-function-action/issues"
+  },
+  "homepage": "https://github.com/cognitedata/deploy-function-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.3",
+    "@actions/github": "^2.1.1",
+    "@cognite/sdk": "^2.26.0",
+    "adm-zip": "^0.4.14"
+  },
+  "prettier": {
+    "singleQuote": true
+  }
+}
