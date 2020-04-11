@@ -149,8 +149,8 @@ async function run() {
   } else if (GITHUB_EVENT_NAME === "push") {
     await handlePush();
   }
-  
 }
+
 run()
   .then(() => {
     process.exit(0);
