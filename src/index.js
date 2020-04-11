@@ -22,6 +22,8 @@ const GITHUB_REF = process.env.GITHUB_REF;
 
 const GITHUB_SHA = process.env.GITHUB_SHA.substring(0,7);
 
+const GITHUB_HEAD_REF = process.env.GITHUB_HEAD_REF;
+
 const functionRefName = GITHUB_REPOSITORY+":"+GITHUB_SHA;
 
 console.log(`Handling event ${GITHUB_EVENT_NAME} on ${GITHUB_REF}`);
@@ -115,13 +117,14 @@ async function handlePush() {
   const fileResponse = await uploadSourceCode();
 
   const functionName = functionRefName;
-  const externalId = functionRefName;
+  const externalId = functionName;
   await deployFunction(fileResponse.id, functionName, externalId);
 }
 
 async function handlePR() {
-  console.log("This is done for pull request");
-  console.log("Environment variables: ", process.env);
+  const functionName = GITHUB_REPOSITORY+"/"+GITHUB_HEAD_REF;
+  const externalId = functionName;
+  await deployFunction(fileResponse.id, functionName, externalId);
 }
 
 async function run() {
