@@ -111,14 +111,29 @@ async function deployFunction(fileId, functionName, externalId) {
   }
 }
 
-async function run() {
-  const user = await sdk.login.status();
-  core.debug(`Logged in as user ${user.user}`);
+async function handlePush() {
   const fileResponse = await uploadSourceCode();
 
   const functionName = functionRefName;
   const externalId = functionRefName;
   await deployFunction(fileResponse.id, functionName, externalId);
+}
+
+async function handlePR() {
+  console.log("This is done for pull request");
+  console.log("Environment variables: ", process.env);
+}
+
+async function run() {
+  const user = await sdk.login.status();
+  core.debug(`Logged in as user ${user.user}`);
+
+  if (GITHUB_EVENT_NAME === "pull_request") {
+    await handlePR();
+  } else if (GITHUB_EVENT_NAME === "push") {
+    await handlePush();
+  }
+  
 }
 run()
   .then(() => {
