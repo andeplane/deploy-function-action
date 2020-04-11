@@ -1,39 +1,40 @@
 name: Deploy Cognite Function
-on: pull_request
-jobs:
-  deploy:
-    name: Deploy PR function
-    # This job runs on Linux
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Pretend to test
-        run: echo "AlL tEStS PaSsED"
-      - name: Deploy
-        uses: ./
-        with:
-          cdf_project: andershaf
-          cdf_base_url: https://api.cognitedata.com
-          cdf_credentials: ${{ secrets.COGNITE_API_KEY }}
-          handler_path: example/handler.py
-      - name: Integration tests
-        run: echo "AlL tEStS PaSsED"
-on: pull_request
-jobs:
-  deploy:
-    name: Deploy PR function
-    # This job runs on Linux
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Pretend to test
-        run: echo "AlL tEStS PaSsED"
-      - name: Deploy PR
-        uses: ./
-        with:
-          cdf_project: andershaf
-          cdf_base_url: https://api.cognitedata.com
-          cdf_credentials: ${{ secrets.COGNITE_API_KEY }}
-          handler_path: example/handler.py
-      - name: Integration tests
-        run: echo "AlL tEStS PaSsED"
+on: 
+  push:
+    jobs:
+      deploy:
+        name: Deploy PR function
+        # This job runs on Linux
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v1
+          - name: Pretend to test
+            run: echo "AlL tEStS PaSsED"
+          - name: Deploy
+            uses: ./
+            with:
+              cdf_project: andershaf
+              cdf_base_url: https://api.cognitedata.com
+              cdf_credentials: ${{ secrets.COGNITE_API_KEY }}
+              handler_path: example/handler.py
+          - name: Integration tests
+            run: echo "AlL tEStS PaSsED"
+  pull_request:
+    jobs:
+      deploy:
+        name: Deploy PR function
+        # This job runs on Linux
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v1
+          - name: Pretend to test
+            run: echo "AlL tEStS PaSsED"
+          - name: Deploy PR
+            uses: ./
+            with:
+              cdf_project: andershaf
+              cdf_base_url: https://api.cognitedata.com
+              cdf_credentials: ${{ secrets.COGNITE_API_KEY }}
+              handler_path: example/handler.py
+          - name: Integration tests
+            run: echo "AlL tEStS PaSsED"
