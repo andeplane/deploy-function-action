@@ -86,8 +86,6 @@ async function deleteFunction(externalId) {
 
 async function deployFunction(fileId, functionName, externalId) {
   try {
-    // First delete function if it exists
-    deleteFunction(functionName)
     const functionResponse = await sdk.post(
       `/api/playground/projects/${CDF_PROJECT}/functions`,
       {
@@ -118,14 +116,16 @@ async function handlePush() {
 
   const functionName = functionRefName;
   const externalId = functionName;
+  await deleteFunction(functionName);
   await deployFunction(fileResponse.id, functionName, externalId);
 }
 
 async function handlePR() {
   const fileResponse = await uploadSourceCode();
-  
+
   const functionName = GITHUB_REPOSITORY+"/"+GITHUB_HEAD_REF;
   const externalId = functionName;
+  await deleteFunction(functionName);
   await deployFunction(fileResponse.id, functionName, externalId);
 }
 
