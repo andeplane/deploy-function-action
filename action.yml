@@ -1,4 +1,4 @@
-name: Deploy a Cognite Function
+name: Anders Hafreager Test Function Deploy
 description: Deploy a Cognite Function
 inputs:
   cdf_project:
