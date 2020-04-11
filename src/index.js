@@ -122,6 +122,8 @@ async function handlePush() {
 }
 
 async function handlePR() {
+  const fileResponse = await uploadSourceCode();
+  
   const functionName = GITHUB_REPOSITORY+"/"+GITHUB_HEAD_REF;
   const externalId = functionName;
   await deployFunction(fileResponse.id, functionName, externalId);
