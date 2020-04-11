@@ -1,6 +1,8 @@
 name: Deploy Cognite Function
 on: 
   push:
+    branches:
+      - master
     jobs:
       deploy:
         name: Deploy PR function
