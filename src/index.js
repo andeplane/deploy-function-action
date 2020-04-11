@@ -104,6 +104,7 @@ async function deployFunction(fileId, functionName, externalId) {
         },
       }
     );
+    
     const functionId = functionResponse.data.items[0].id;
     core.exportVariable('functionId', `${functionId}`);
     core.exportVariable('functionExternalId', `${externalId}`);
