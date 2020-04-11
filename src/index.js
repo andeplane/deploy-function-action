@@ -169,11 +169,18 @@ async function deployFunction(fileId, functionName, externalId) {
 async function handlePush() {
   const fileResponse = await uploadSourceCode();
 
-  // const functionName = functionRefName;
-  const functionName = GITHUB_REPOSITORY+":latest"
+  // Deploy function with :sha
+  const functionName = functionRefName;
   const externalId = functionName;
   await deleteFunction(functionName);
   await deployFunction(fileResponse.id, functionName, externalId);
+  
+  // Delete :latest and recreate immediately. This will hopefully be fast
+  const functionNameLatest = GITHUB_REPOSITORY+":latest"
+  await deleteFunction(functionNameLatest);
+  await deployFunction(fileResponse.id, functionNameLatest, externalId);
+  // Delete function with :sha
+  await deleteFunction(functionName);
 }
 
 async function handlePR() {
