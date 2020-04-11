@@ -48,6 +48,10 @@ console.log("Environment variables: ", process.env);
 
 sdk.loginWithApiKey({ apiKey: CDF_CREDENTIALS, project: CDF_PROJECT });
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function uploadSourceCode() {
   const fileName = functionRefName.replace("/","_")+".zip";
   await zip.addLocalFile(FUNCTION_PATH);
@@ -88,6 +92,44 @@ async function deleteFunction(externalId) {
   }
 }
 
+async function awaitDeployedFunction(externalId) {
+  // try {
+    now = new Date();
+    async function functionIsReady(externalId) {
+      const functionResponse = await sdk.post(
+        `/api/playground/projects/${CDF_PROJECT}/functions/byids`,
+        {
+          data: {
+            items: [
+              {
+                externalId: externalId
+              },
+            ],
+          },
+        }
+      );
+      
+      const status = functionResponse.data.items[0].status;
+      return status === "Ready";
+    }
+
+    while (true) {
+      const ready = await functionIsReady(externalId);
+      if (ready) {
+        return true;
+      }
+
+      if (new Date() - now < 120000) {
+        sleep(1000);
+      } else {
+        return false;
+      }
+    }
+  // } catch (ex) {
+
+  // }
+}
+
 async function deployFunction(fileId, functionName, externalId) {
   try {
     const functionResponse = await sdk.post(
@@ -104,12 +146,19 @@ async function deployFunction(fileId, functionName, externalId) {
         },
       }
     );
-    
+
     const functionId = functionResponse.data.items[0].id;
     core.exportVariable('functionId', `${functionId}`);
     core.exportVariable('functionExternalId', `${externalId}`);
     core.exportVariable('functionName', `${functionName}`);
-    console.log(`Successfully deployed function ${functionName} with external id ${externalId} and id ${functionId}.`);
+
+    const deployed = await awaitDeployedFunction(externalId);
+    if (deployed) {
+      console.log(`Successfully deployed function ${functionName} with external id ${externalId} and id ${functionId}.`);
+    } else {
+      console.log(`Failed deploying function ${functionName} with external id ${externalId} and id ${functionId}.`);
+    }
+    
   } catch (ex) {
     core.setFailed(ex.message);
     throw ex;
@@ -119,7 +168,8 @@ async function deployFunction(fileId, functionName, externalId) {
 async function handlePush() {
   const fileResponse = await uploadSourceCode();
 
-  const functionName = functionRefName;
+  // const functionName = functionRefName;
+  const functionName = GITHUB_REPOSITORY+":latest"
   const externalId = functionName;
   await deleteFunction(functionName);
   await deployFunction(fileResponse.id, functionName, externalId);
