@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Deploy
-        uses: ./
+        uses: andeplane/deploy-function-action@master
         env: 
           DELETE_PR: true
         with:
