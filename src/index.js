@@ -24,6 +24,8 @@ const GITHUB_SHA = process.env.GITHUB_SHA.substring(0,7);
 
 const GITHUB_HEAD_REF = process.env.GITHUB_HEAD_REF;
 
+const DELETE_PR_DEPLOYMENT = process.env.DELETE_PR_DEPLOYMENT
+
 const functionRefName = GITHUB_REPOSITORY+":"+GITHUB_SHA;
 
 console.log(`Handling event ${GITHUB_EVENT_NAME} on ${GITHUB_REF}`);
@@ -41,6 +43,8 @@ if (!(CDF_PROJECT && CDF_CREDENTIALS)) {
   );
   process.exit(1);
 }
+
+console.log("Environment variables: ", process.env);
 
 sdk.loginWithApiKey({ apiKey: CDF_CREDENTIALS, project: CDF_PROJECT });
 
@@ -117,7 +121,11 @@ async function handlePush() {
   const functionName = functionRefName;
   const externalId = functionName;
   await deleteFunction(functionName);
+  if (process.env.DELETE_PR_DEPLOYMENT) {
+    return;
+  
   await deployFunction(fileResponse.id, functionName, externalId);
+  
 }
 
 async function handlePR() {
