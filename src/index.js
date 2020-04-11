@@ -126,8 +126,6 @@ async function handlePush() {
 }
 
 async function handlePR() {
-  const fileResponse = await uploadSourceCode();
-
   const functionName = GITHUB_REPOSITORY+"/"+GITHUB_HEAD_REF;
   const externalId = functionName;
   core.debug(`Deleting potential old PR function ...`);
@@ -135,8 +133,11 @@ async function handlePR() {
   if (process.env.DELETE_PR_FUNCTION) {
     return;
   }
-  core.debug(`Redeploying PR function`);
+  core.debug(`Uploading source code ...`);
+  const fileResponse = await uploadSourceCode();
+  core.debug(`Redeploying PR function ...`);
   await deployFunction(fileResponse.id, functionName, externalId);
+  core.debug(`Done.`);
 }
 
 async function run() {
