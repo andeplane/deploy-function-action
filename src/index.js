@@ -22,6 +22,8 @@ const GITHUB_REF = process.env.GITHUB_REF;
 
 const GITHUB_SHA = process.env.GITHUB_SHA.substring(0,7);
 
+const GITHUB_HEAD_REF = process.env.GITHUB_HEAD_REF;
+
 const functionRefName = GITHUB_REPOSITORY+":"+GITHUB_SHA;
 
 console.log(`Handling event ${GITHUB_EVENT_NAME} on ${GITHUB_REF}`);
@@ -84,8 +86,6 @@ async function deleteFunction(externalId) {
 
 async function deployFunction(fileId, functionName, externalId) {
   try {
-    // First delete function if it exists
-    deleteFunction(functionName)
     const functionResponse = await sdk.post(
       `/api/playground/projects/${CDF_PROJECT}/functions`,
       {
@@ -111,14 +111,34 @@ async function deployFunction(fileId, functionName, externalId) {
   }
 }
 
-async function run() {
-  const user = await sdk.login.status();
-  core.debug(`Logged in as user ${user.user}`);
+async function handlePush() {
   const fileResponse = await uploadSourceCode();
 
   const functionName = functionRefName;
-  const externalId = functionRefName;
+  const externalId = functionName;
+  await deleteFunction(functionName);
   await deployFunction(fileResponse.id, functionName, externalId);
+}
+
+async function handlePR() {
+  const fileResponse = await uploadSourceCode();
+
+  const functionName = GITHUB_REPOSITORY+"/"+GITHUB_HEAD_REF;
+  const externalId = functionName;
+  await deleteFunction(functionName);
+  await deployFunction(fileResponse.id, functionName, externalId);
+}
+
+async function run() {
+  const user = await sdk.login.status();
+  core.debug(`Logged in as user ${user.user}`);
+
+  if (GITHUB_EVENT_NAME === "pull_request") {
+    await handlePR();
+  } else if (GITHUB_EVENT_NAME === "push") {
+    await handlePush();
+  }
+  
 }
 run()
   .then(() => {

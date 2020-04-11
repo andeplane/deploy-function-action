@@ -1,5 +1,9 @@
 name: Deploy Cognite Function
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 jobs:
   deploy:
     name: Deploy
@@ -16,3 +20,5 @@ jobs:
           cdf_base_url: https://api.cognitedata.com
           cdf_credentials: ${{ secrets.COGNITE_API_KEY }}
           handler_path: example/handler.py
+      - name: Pretend to test
+        run: echo "AlL tEStS PaSsED"
