@@ -122,7 +122,7 @@ async function handlePush() {
   const functionName = functionRefName;
   const externalId = functionName;
   await deleteFunction(functionName);
-  if (process.env.DELETE_PR_DEPLOYMENT) {
+  if (process.env.DELETE_PR_FUNCTION) {
     return;
   }
   
