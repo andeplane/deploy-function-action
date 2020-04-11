@@ -60,15 +60,40 @@ async function uploadSourceCode() {
   return fileResponse;
 }
 
-async function deployFunction(fileId) {
+async function deleteFunction(externalId) {
   try {
+    const functionResponse = await sdk.post(
+      `/api/playground/projects/${CDF_PROJECT}/functions/delete`,
+      {
+        data: {
+          items: [
+            {
+              externalId: externalId
+            },
+          ],
+        },
+      }
+    );
+    core.debug(`Successfully deleted function with externalId ${externalId}`);
+    console.log(`Successfully deleted function with externalId ${externalId}`);
+  } catch (ex) {
+    core.debug(`Did not delete function: ${ex.errorMessage}`);
+    console.log(`Did not delete function: ${ex.errorMessage}`)
+  }
+}
+
+async function deployFunction(fileId, functionName, externalId) {
+  try {
+    // First delete function if it exists
+    deleteFunction(functionName)
     const functionResponse = await sdk.post(
       `/api/playground/projects/${CDF_PROJECT}/functions`,
       {
         data: {
           items: [
             {
-              name: functionRefName,
+              name: functionName,
+              externalId: externalId,
               fileId: fileId,
             },
           ],
@@ -77,7 +102,9 @@ async function deployFunction(fileId) {
     );
     const functionId = functionResponse.data.items[0].id;
     core.exportVariable('functionId', `${functionId}`);
-    console.log(`Successfully deployed function with id ${functionId}`);
+    core.exportVariable('functionExternalId', `${externalId}`);
+    core.exportVariable('functionName', `${functionName}`);
+    console.log(`Successfully deployed function ${functionName} with external id ${externalId} and id ${functionId}.`);
   } catch (ex) {
     core.setFailed(ex.message);
     throw ex;
