@@ -8,7 +8,7 @@ jobs:
     # This job runs on Linux
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy
+      - name: Delete PR function
         uses: andeplane/deploy-function-action@master
         env: 
           DELETE_PR_FUNCTION: true
