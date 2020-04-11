@@ -1,7 +1,7 @@
 FROM node:12-alpine
 
-COPY . .
+COPY . /
 
 RUN yarn install
 
-CMD node src/index.js
+CMD node /src/index.js
