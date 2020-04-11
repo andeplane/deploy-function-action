@@ -139,6 +139,7 @@ async function handlePR() {
   await deployFunction(fileResponse.id, functionName, externalId);
 }
 
+
 async function run() {
   const user = await sdk.login.status();
   core.debug(`Logged in as user ${user.user}`);
