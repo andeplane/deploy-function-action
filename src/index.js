@@ -93,7 +93,7 @@ async function deleteFunction(externalId) {
 }
 
 async function awaitDeployedFunction(externalId) {
-  // try {
+  try {
     now = new Date();
     async function functionIsReady(externalId) {
       const functionResponse = await sdk.post(
@@ -125,9 +125,10 @@ async function awaitDeployedFunction(externalId) {
         return false;
       }
     }
-  // } catch (ex) {
-
-  // }
+  } catch (ex) {
+    core.setFailed(ex.message);
+    throw ex;
+  }
 }
 
 async function deployFunction(fileId, functionName, externalId) {
