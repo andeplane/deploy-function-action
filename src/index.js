@@ -13,7 +13,7 @@ const CDF_PROJECT = process.env.INPUT_CDF_PROJECT;
 const CDF_CREDENTIALS = process.env.INPUT_CDF_CREDENTIALS;
 
 const FUNCTION_PATH = process.env.INPUT_HANDLER_PATH;
-
+console.log("Environment variables: ", process.env)
 const sdk = new CogniteClient({
   baseUrl: CDF_BASE_URL,
   appId: 'deploy-function-action',
