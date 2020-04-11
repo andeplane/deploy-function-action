@@ -116,7 +116,9 @@ async function run() {
   core.debug(`Logged in as user ${user.user}`);
   const fileResponse = await uploadSourceCode();
 
-  await deployFunction(fileResponse.id);
+  const functionName = functionRefName;
+  const externalId = functionRefName;
+  await deployFunction(fileResponse.id, functionName, externalId);
 }
 run()
   .then(() => {
