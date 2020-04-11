@@ -1,7 +1,7 @@
 name: Deploy Cognite Function
 on:
   pull_request:
-    types: closed
+    # types: closed
 jobs:
   deploy:
     name: Delete PR function
