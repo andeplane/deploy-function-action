@@ -1,4 +1,4 @@
-name: Deploy Cognite Function
+name: Delete Cognite Function
 on:
   pull_request:
     # types: closed
