@@ -123,6 +123,7 @@ async function handlePush() {
   await deleteFunction(functionName);
   if (process.env.DELETE_PR_DEPLOYMENT) {
     return;
+  }
   
   await deployFunction(fileResponse.id, functionName, externalId);
   
