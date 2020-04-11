@@ -10,7 +10,8 @@ jobs:
     steps:
       - name: Deploy
         uses: ./
-        env: DELETE_PR: true
+        env: 
+          DELETE_PR: true
         with:
           cdf_project: andershaf
           cdf_base_url: https://api.cognitedata.com
