@@ -130,10 +130,12 @@ async function handlePR() {
 
   const functionName = GITHUB_REPOSITORY+"/"+GITHUB_HEAD_REF;
   const externalId = functionName;
+  core.debug(`Deleting potential old PR function ...`);
   await deleteFunction(functionName);
   if (process.env.DELETE_PR_FUNCTION) {
     return;
   }
+  core.debug(`Redeploying PR function`);
   await deployFunction(fileResponse.id, functionName, externalId);
 }
 
