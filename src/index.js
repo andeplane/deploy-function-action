@@ -26,8 +26,6 @@ const GITHUB_HEAD_REF = process.env.GITHUB_HEAD_REF;
 
 const DELETE_PR_DEPLOYMENT = process.env.DELETE_PR_DEPLOYMENT
 
-const functionRefName = GITHUB_REPOSITORY+":"+GITHUB_SHA;
-
 console.log(`Handling event ${GITHUB_EVENT_NAME} on ${GITHUB_REF}`);
 
 const sdk = new CogniteClient({
@@ -50,13 +48,13 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function uploadSourceCode() {
-  const fileName = functionRefName.replace("/","_")+".zip";
+async function uploadSourceCode(functionName) {
+  const fileName = functionName.replace("/","_")+".zip";
   await zip.addLocalFolder(FUNCTION_PATH);
   const buffer = zip.toBuffer();
   const fileResponse = await sdk.files.upload(
     {
-      externalId: functionRefName,
+      externalId: functionName,
       name: fileName,
       mimeType: 'application/zip',
     },
@@ -169,13 +167,13 @@ async function handlePush() {
   const fileResponse = await uploadSourceCode();
 
   // Deploy function with :sha
-  const functionName = functionRefName;
+  const functionName = `${GITHUB_REPOSITORY}/${FUNCTION_PATH}:${GITHUB_SHA}`
   const externalId = functionName;
   await deleteFunction(externalId);
   await deployFunction(fileResponse.id, functionName, externalId);
   
   // Delete :latest and recreate immediately. This will hopefully be fast
-  const functionNameLatest = GITHUB_REPOSITORY+":latest"
+  const functionNameLatest = `${GITHUB_REPOSITORY}/${FUNCTION_PATH}:latest`
   const externalIdLatest = functionNameLatest;
   await deleteFunction(externalIdLatest);
   await deployFunction(fileResponse.id, functionNameLatest, externalIdLatest);
@@ -184,7 +182,7 @@ async function handlePush() {
 }
 
 async function handlePR() {
-  const functionName = GITHUB_REPOSITORY+"/"+GITHUB_HEAD_REF;
+  const functionName = `${GITHUB_REPOSITORY}/${FUNCTION_PATH}/${GITHUB_HEAD_REF}`
   const externalId = functionName;
   console.log(`Deleting potential old PR function ...`);
   await deleteFunction(functionName);
