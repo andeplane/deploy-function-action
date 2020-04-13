@@ -164,11 +164,11 @@ async function deployFunction(fileId, functionName, externalId) {
 }
 
 async function handlePush() {
-  const fileResponse = await uploadSourceCode();
-
+  
   // Deploy function with :sha
   const functionName = `${GITHUB_REPOSITORY}/${FUNCTION_PATH}:${GITHUB_SHA}`
   const externalId = functionName;
+  const fileResponse = await uploadSourceCode(functionName);
   await deleteFunction(externalId);
   await deployFunction(fileResponse.id, functionName, externalId);
   
@@ -190,7 +190,7 @@ async function handlePR() {
     return;
   }
   console.log(`Uploading source code ...`);
-  const fileResponse = await uploadSourceCode();
+  const fileResponse = await uploadSourceCode(functionName);
   console.log(`Redeploying PR function ...`);
   await deployFunction(fileResponse.id, functionName, externalId);
   console.log(`Done.`);
