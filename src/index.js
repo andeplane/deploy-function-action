@@ -54,7 +54,7 @@ function sleep(ms) {
 
 async function uploadSourceCode() {
   const fileName = functionRefName.replace("/","_")+".zip";
-  await zip.addLocalFile(FUNCTION_PATH);
+  await zip.addLocalFolder(FUNCTION_PATH);
   const buffer = zip.toBuffer();
   const fileResponse = await sdk.files.upload(
     {
@@ -92,7 +92,7 @@ async function deleteFunction(externalId) {
   }
 }
 
-async function awaitDeployedFunction(externalId) {
+async function awaitDeployedFunction(externalId, waiting_time_seconds) {
   try {
     now = new Date();
     async function functionIsReady(externalId) {
@@ -120,8 +120,8 @@ async function awaitDeployedFunction(externalId) {
         return true;
       }
 
-      if (new Date() - now < 120000) {
-        sleep(1000);
+      if (new Date() - now < waiting_time_seconds * 1000) {
+        sleep(5000);
       } else {
         return false;
       }
@@ -156,7 +156,7 @@ async function deployFunction(fileId, functionName, externalId) {
     core.exportVariable('functionExternalId', `${externalId}`);
     core.exportVariable('functionName', `${functionName}`);
 
-    const deployed = await awaitDeployedFunction(externalId);
+    const deployed = await awaitDeployedFunction(externalId, 300);
     if (deployed) {
       console.log(`Successfully deployed function ${functionName} with external id ${externalId} and id ${functionId}.`);
     } else {
