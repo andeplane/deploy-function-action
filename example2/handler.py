@@ -8,5 +8,5 @@ def handle(data, client):
     time.sleep(8.0)
     print("Ok, I'm done now.")
     return {
-        "result": 2.0 * data["value"]
+        "result": 4.0 * data["value"]
     }

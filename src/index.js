@@ -12,7 +12,7 @@ const CDF_PROJECT = process.env.INPUT_CDF_PROJECT;
 
 const CDF_CREDENTIALS = process.env.INPUT_CDF_CREDENTIALS;
 
-const FUNCTION_PATH = process.env.INPUT_HANDLER_PATH;
+const FUNCTION_PATH = process.env.INPUT_FUNCTION_PATH;
 
 const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY;
 
@@ -25,8 +25,6 @@ const GITHUB_SHA = process.env.GITHUB_SHA.substring(0,7);
 const GITHUB_HEAD_REF = process.env.GITHUB_HEAD_REF;
 
 const DELETE_PR_DEPLOYMENT = process.env.DELETE_PR_DEPLOYMENT
-
-const functionRefName = GITHUB_REPOSITORY+":"+GITHUB_SHA;
 
 console.log(`Handling event ${GITHUB_EVENT_NAME} on ${GITHUB_REF}`);
 
@@ -44,21 +42,20 @@ if (!(CDF_PROJECT && CDF_CREDENTIALS)) {
   process.exit(1);
 }
 
-console.log("Environment variables: ", process.env);
-
 sdk.loginWithApiKey({ apiKey: CDF_CREDENTIALS, project: CDF_PROJECT });
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function uploadSourceCode() {
-  const fileName = functionRefName.replace("/","_")+".zip";
-  await zip.addLocalFile(FUNCTION_PATH);
+async function uploadSourceCode(functionName) {
+  const fileName = functionName.replace(/\//g,"_")+".zip";
+  console.log(`Uploading file with file name ${fileName}`)
+  await zip.addLocalFolder(FUNCTION_PATH);
   const buffer = zip.toBuffer();
   const fileResponse = await sdk.files.upload(
     {
-      externalId: functionRefName,
+      externalId: functionName,
       name: fileName,
       mimeType: 'application/zip',
     },
@@ -84,15 +81,13 @@ async function deleteFunction(externalId) {
         },
       }
     );
-    core.debug(`Successfully deleted function with externalId ${externalId}`);
     console.log(`Successfully deleted function with externalId ${externalId}`);
   } catch (ex) {
-    core.debug(`Did not delete function: ${ex.errorMessage}`);
     console.log(`Did not delete function: ${ex.errorMessage}`)
   }
 }
 
-async function awaitDeployedFunction(externalId) {
+async function awaitDeployedFunction(externalId, waiting_time_seconds) {
   try {
     now = new Date();
     async function functionIsReady(externalId) {
@@ -112,7 +107,6 @@ async function awaitDeployedFunction(externalId) {
       const status = functionResponse.data.items[0].status;
       return status === "Ready";
     }
-    core.debug(`Awaiting function ${externalId} to become ready`);
     console.log(`Awaiting function ${externalId} to become ready`);
     while (true) {
       const ready = await functionIsReady(externalId);
@@ -120,8 +114,8 @@ async function awaitDeployedFunction(externalId) {
         return true;
       }
 
-      if (new Date() - now < 120000) {
-        sleep(1000);
+      if (new Date() - now < waiting_time_seconds * 1000) {
+        sleep(5000);
       } else {
         return false;
       }
@@ -134,7 +128,6 @@ async function awaitDeployedFunction(externalId) {
 
 async function deployFunction(fileId, functionName, externalId) {
   try {
-    core.debug(`Deploying function ${functionName} (${externalId})`);
     console.log(`Deploying function ${functionName} (${externalId})`);
     const functionResponse = await sdk.post(
       `/api/playground/projects/${CDF_PROJECT}/functions`,
@@ -151,12 +144,14 @@ async function deployFunction(fileId, functionName, externalId) {
       }
     );
 
+    
     const functionId = functionResponse.data.items[0].id;
+    console.log(`Created function with status ${functionResponse.status} with id ${functionId}`);
     core.exportVariable('functionId', `${functionId}`);
     core.exportVariable('functionExternalId', `${externalId}`);
     core.exportVariable('functionName', `${functionName}`);
 
-    const deployed = await awaitDeployedFunction(externalId);
+    const deployed = await awaitDeployedFunction(externalId, 300);
     if (deployed) {
       console.log(`Successfully deployed function ${functionName} with external id ${externalId} and id ${functionId}.`);
     } else {
@@ -170,16 +165,16 @@ async function deployFunction(fileId, functionName, externalId) {
 }
 
 async function handlePush() {
-  const fileResponse = await uploadSourceCode();
-
+  
   // Deploy function with :sha
-  const functionName = functionRefName;
+  const functionName = `${GITHUB_REPOSITORY}/${FUNCTION_PATH}:${GITHUB_SHA}`
   const externalId = functionName;
+  const fileResponse = await uploadSourceCode(functionName);
   await deleteFunction(externalId);
   await deployFunction(fileResponse.id, functionName, externalId);
   
   // Delete :latest and recreate immediately. This will hopefully be fast
-  const functionNameLatest = GITHUB_REPOSITORY+":latest"
+  const functionNameLatest = `${GITHUB_REPOSITORY}/${FUNCTION_PATH}:latest`
   const externalIdLatest = functionNameLatest;
   await deleteFunction(externalIdLatest);
   await deployFunction(fileResponse.id, functionNameLatest, externalIdLatest);
@@ -188,23 +183,29 @@ async function handlePush() {
 }
 
 async function handlePR() {
-  const functionName = GITHUB_REPOSITORY+"/"+GITHUB_HEAD_REF;
+  const functionName = `${GITHUB_REPOSITORY}/${FUNCTION_PATH}/${GITHUB_HEAD_REF}`
   const externalId = functionName;
-  core.debug(`Deleting potential old PR function ...`);
+  console.log(`Deleting potential old PR function ...`);
   await deleteFunction(functionName);
   if (process.env.DELETE_PR_FUNCTION) {
     return;
   }
-  core.debug(`Uploading source code ...`);
-  const fileResponse = await uploadSourceCode();
-  core.debug(`Redeploying PR function ...`);
+  console.log(`Uploading source code ...`);
+  const fileResponse = await uploadSourceCode(functionName);
+  console.log(`Redeploying PR function ...`);
   await deployFunction(fileResponse.id, functionName, externalId);
-  core.debug(`Done.`);
+  console.log(`Done.`);
 }
 
 async function run() {
   const user = await sdk.login.status();
-  core.debug(`Logged in as user ${user.user}`);
+  if (!user) {
+    const message = "Invalid API key."
+    core.setFailed(message);
+    console.error(message);
+    process.exit(1);
+  }
+  console.log(`Logged in as user ${user.user}`);
 
   if (GITHUB_EVENT_NAME === "pull_request") {
     await handlePR();
