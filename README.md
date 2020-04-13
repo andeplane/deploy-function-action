@@ -1,35 +1,35 @@
 # Deploy Cognite Function action
 
-This action deploys a python function to Cognite Functions
+This action deploys a Python function to Cognite Functions.
 
 ## Inputs
 
-### `handler_path`
+### `function_path`
 
-Path to your python function. Defaults to `handler.py`
+Path to a directory containing your function. By using `strategy.matrix` in your workflow, multiple functions can be used.
 
 ### `cdf_project`
 
-**Required** The name of the project in CDF
+**Required** The name of the project in CDF.
 
 ### `cdf_credentials`
 
-**Required** API key that should deploy the function
+**Required** API key that should deploy the function.
 
 ### `cdf_base_url`
 
-Base url of your CDF project. Defaults to https://api.cognitedata.com
+Base url of your CDF project. Defaults to https://api.cognitedata.com.
 
 ## Outputs
 
 ### `functionId`
 
-The ID of the function you created
+The ID of the function you created.
 
 ## Example usage
 
 ```yml
-uses: cognitedata/deploy-function-action
+uses: andeplane/deploy-function-action
 with:
   cdf_project: cognite
   cdf_credentials: ${{ secrete.COGNITE_CREDENTIALS }}
