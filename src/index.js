@@ -82,10 +82,8 @@ async function deleteFunction(externalId) {
         },
       }
     );
-    core.debug(`Successfully deleted function with externalId ${externalId}`);
     console.log(`Successfully deleted function with externalId ${externalId}`);
   } catch (ex) {
-    core.debug(`Did not delete function: ${ex.errorMessage}`);
     console.log(`Did not delete function: ${ex.errorMessage}`)
   }
 }
@@ -110,7 +108,6 @@ async function awaitDeployedFunction(externalId, waiting_time_seconds) {
       const status = functionResponse.data.items[0].status;
       return status === "Ready";
     }
-    core.debug(`Awaiting function ${externalId} to become ready`);
     console.log(`Awaiting function ${externalId} to become ready`);
     while (true) {
       const ready = await functionIsReady(externalId);
@@ -132,7 +129,6 @@ async function awaitDeployedFunction(externalId, waiting_time_seconds) {
 
 async function deployFunction(fileId, functionName, externalId) {
   try {
-    core.debug(`Deploying function ${functionName} (${externalId})`);
     console.log(`Deploying function ${functionName} (${externalId})`);
     const functionResponse = await sdk.post(
       `/api/playground/projects/${CDF_PROJECT}/functions`,
@@ -190,16 +186,16 @@ async function handlePush() {
 async function handlePR() {
   const functionName = GITHUB_REPOSITORY+"/"+GITHUB_HEAD_REF;
   const externalId = functionName;
-  core.debug(`Deleting potential old PR function ...`);
+  console.log(`Deleting potential old PR function ...`);
   await deleteFunction(functionName);
   if (process.env.DELETE_PR_FUNCTION) {
     return;
   }
-  core.debug(`Uploading source code ...`);
+  console.log(`Uploading source code ...`);
   const fileResponse = await uploadSourceCode();
-  core.debug(`Redeploying PR function ...`);
+  console.log(`Redeploying PR function ...`);
   await deployFunction(fileResponse.id, functionName, externalId);
-  core.debug(`Done.`);
+  console.log(`Done.`);
 }
 
 async function run() {
@@ -210,7 +206,7 @@ async function run() {
     console.error(message);
     process.exit(1);
   }
-  core.debug(`Logged in as user ${user.user}`);
+  console.log(`Logged in as user ${user.user}`);
 
   if (GITHUB_EVENT_NAME === "pull_request") {
     await handlePR();
