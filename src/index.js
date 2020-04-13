@@ -204,6 +204,12 @@ async function handlePR() {
 
 async function run() {
   const user = await sdk.login.status();
+  if (!user) {
+    const message = "Invalid API key."
+    core.setFailed(message);
+    console.error(message);
+    process.exit(1);
+  }
   core.debug(`Logged in as user ${user.user}`);
 
   if (GITHUB_EVENT_NAME === "pull_request") {
