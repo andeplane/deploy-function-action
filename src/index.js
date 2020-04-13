@@ -151,7 +151,9 @@ async function deployFunction(fileId, functionName, externalId) {
       }
     );
 
+    
     const functionId = functionResponse.data.items[0].id;
+    console.log(`Created function with status ${functionResponse.status} with id ${functionId}`);
     core.exportVariable('functionId', `${functionId}`);
     core.exportVariable('functionExternalId', `${externalId}`);
     core.exportVariable('functionName', `${functionName}`);
