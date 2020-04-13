@@ -49,7 +49,7 @@ function sleep(ms) {
 }
 
 async function uploadSourceCode(functionName) {
-  const fileName = functionName.replace("/","_")+".zip";
+  const fileName = functionName.replace(/\//g,"_")+".zip";
   console.log(`Uploading file with file name ${fileName}`)
   await zip.addLocalFolder(FUNCTION_PATH);
   const buffer = zip.toBuffer();
