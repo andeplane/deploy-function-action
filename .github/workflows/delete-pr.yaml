@@ -12,7 +12,7 @@ jobs:
         functions: [example, example2]
     steps:
       - name: Delete PR function
-        uses: andeplane/deploy-function-python@master
+        uses: ./
         env: 
           DELETE_PR_FUNCTION: true
         with:
