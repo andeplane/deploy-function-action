@@ -12,7 +12,7 @@ const CDF_PROJECT = process.env.INPUT_CDF_PROJECT;
 
 const CDF_CREDENTIALS = process.env.INPUT_CDF_CREDENTIALS;
 
-const FUNCTION_PATH = process.env.INPUT_HANDLER_PATH;
+const FUNCTION_PATH = process.env.INPUT_FUNCTION_PATH;
 
 const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY;
 
