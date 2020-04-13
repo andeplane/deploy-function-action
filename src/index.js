@@ -44,8 +44,6 @@ if (!(CDF_PROJECT && CDF_CREDENTIALS)) {
   process.exit(1);
 }
 
-console.log("Environment variables: ", process.env);
-
 sdk.loginWithApiKey({ apiKey: CDF_CREDENTIALS, project: CDF_PROJECT });
 
 function sleep(ms) {
