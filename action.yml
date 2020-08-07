@@ -11,8 +11,11 @@ inputs:
     description: Base url of your cdf project
     default: https://api.cognitedata.com
     required: false
+  folder:
+    description: Path to the folder containing source code to upload
+    required: true
   function_path:
-    description: Path to the directory containing the Python function
+    description: Relative path to the Python file containing the function
     required: true
 outputs:
   functionId: # id of output
