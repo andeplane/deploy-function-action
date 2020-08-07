@@ -12,7 +12,11 @@ const CDF_PROJECT = process.env.INPUT_CDF_PROJECT;
 
 const CDF_CREDENTIALS = process.env.INPUT_CDF_CREDENTIALS;
 
+const FOLDER = process.env.INPUT_FOLDER;
+
 const FUNCTION_PATH = process.env.INPUT_FUNCTION_PATH;
+
+const FULL_PATH = path.join(FOLDER, FUNCTION_PATH);
 
 const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY;
 
@@ -51,7 +55,7 @@ function sleep(ms) {
 async function uploadSourceCode(functionName) {
   const fileName = functionName.replace(/\//g,"_")+".zip";
   console.log(`Uploading file with file name ${fileName}`)
-  await zip.addLocalFolder(FUNCTION_PATH);
+  await zip.addLocalFolder("FOLDER");
   const buffer = zip.toBuffer();
   const fileResponse = await sdk.files.upload(
     {
@@ -138,6 +142,7 @@ async function deployFunction(fileId, functionName, externalId) {
               name: functionName,
               externalId: externalId,
               fileId: fileId,
+              functionPath: FUNCTION_PATH,
             },
           ],
         },
@@ -167,14 +172,14 @@ async function deployFunction(fileId, functionName, externalId) {
 async function handlePush() {
   
   // Deploy function with :sha
-  const functionName = `${GITHUB_REPOSITORY}/${FUNCTION_PATH}:${GITHUB_SHA}`
+  const functionName = `${GITHUB_REPOSITORY}/${FULL_PATH}:${GITHUB_SHA}`
   const externalId = functionName;
   const fileResponse = await uploadSourceCode(functionName);
   await deleteFunction(externalId);
   await deployFunction(fileResponse.id, functionName, externalId);
   
   // Delete :latest and recreate immediately. This will hopefully be fast
-  const functionNameLatest = `${GITHUB_REPOSITORY}/${FUNCTION_PATH}:latest`
+  const functionNameLatest = `${GITHUB_REPOSITORY}/${FULL_PATH}:latest`
   const externalIdLatest = functionNameLatest;
   await deleteFunction(externalIdLatest);
   await deployFunction(fileResponse.id, functionNameLatest, externalIdLatest);
@@ -183,7 +188,7 @@ async function handlePush() {
 }
 
 async function handlePR() {
-  const functionName = `${GITHUB_REPOSITORY}/${FUNCTION_PATH}/${GITHUB_HEAD_REF}`
+  const functionName = `${GITHUB_REPOSITORY}/${FULL_PATH}/${GITHUB_HEAD_REF}`
   const externalId = functionName;
   console.log(`Deleting potential old PR function ...`);
   await deleteFunction(functionName);

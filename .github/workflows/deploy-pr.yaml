@@ -8,7 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        functions: [example, example2]
+        cfg: 
+          - { folder: exmaple,  function_path: handler.py }
+          - { folder: example2, function_path: handler.py }
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v1
@@ -25,18 +27,19 @@ jobs:
           COGNITE_PROJECT: datastudio
           COGNITE_BASE_URL: https://greenfield.cognitedata.com
           COGNITE_CLIENT_NAME: cognite-function-deploy
-        run: pytest ${{ matrix.functions }} -m "unit"
+        run: pytest ${{ matrix.cfg.folder }} -m "unit"
       - name: Deploy
         uses: ./
         with:
           cdf_project: datastudio
           cdf_base_url: https://greenfield.cognitedata.com
           cdf_credentials: ${{ secrets.COGNITE_API_KEY }}
-          function_path: ${{ matrix.functions }}
+          folder: ${{ matrix.cfg.folder }}
+          function_path: ${{ matrix.cfg.function_path }}
       - name: Run integration tests
         env:
           COGNITE_API_KEY: ${{ secrets.COGNITE_API_KEY }}
           COGNITE_PROJECT: datastudio
           COGNITE_BASE_URL: https://greenfield.cognitedata.com
           COGNITE_CLIENT_NAME: cognite-function-deploy
-        run: pytest ${{ matrix.functions }} -m "integration"
+        run: pytest ${{ matrix.cfg.folder }} -m "integration"

@@ -9,7 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        functions: [example, example2]
+        cfg: 
+          - { folder: exmaple,  function_path: handler.py }
+          - { folder: example2, function_path: handler.py }
     steps:
       - name: Delete PR function
         uses: ./
@@ -19,5 +21,6 @@ jobs:
           cdf_project: datastudio
           cdf_base_url: https://greenfield.cognitedata.com
           cdf_credentials: ${{ secrets.COGNITE_API_KEY }}
-          function_path: ${{ matrix.functions }}
-          
+          folder: ${{ matrix.cfg.folder }}
+          function_path: ${{ matrix.cfg.function_path }}
+  
