@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         cfg: 
-          - { folder: exmaple,  function_path: handler.py }
+          - { folder: example,  function_path: handler.py }
           - { folder: example2, function_path: handler.py }
     steps:
       - uses: actions/checkout@v1
