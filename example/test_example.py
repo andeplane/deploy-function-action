@@ -23,9 +23,10 @@ def data():
 
 @pytest.mark.integration
 def test_deployed_function(data, client):
-  external_id = f"{GITHUB_REPOSITORY}/example/{GITHUB_HEAD_REF}"
+  full_path = "example/handler.py"
+  external_id = f"{GITHUB_REPOSITORY}/{full_path}/{GITHUB_HEAD_REF}"
   if GITHUB_EVENT_NAME == "push":
-    external_id = f"{GITHUB_REPOSITORY}/example:{GITHUB_SHA}"
+    external_id = f"{GITHUB_REPOSITORY}/{full_path}:{GITHUB_SHA}"
   function = client.functions.retrieve(external_id=external_id)
   call = function.call(data=data)
   assert call.status == "Completed"
