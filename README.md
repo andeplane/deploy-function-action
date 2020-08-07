@@ -36,7 +36,7 @@ The ID of the function you created.
 uses: andeplane/deploy-function-action
 with:
   cdf_project: cognite
-  cdf_credentials: ${{ secrete.COGNITE_CREDENTIALS }}
+  cdf_credentials: ${{ secrets.COGNITE_CREDENTIALS }}
   folder: ${{ matrix.cfg.folder }}
   function_path: ${{ matrix.cfg.function_path }}
 ```
