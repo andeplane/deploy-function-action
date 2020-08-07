@@ -1,6 +1,7 @@
 const core = require('@actions/core');
 const { CogniteClient } = require('@cognite/sdk');
 const AdmZip = require('adm-zip');
+const path = require('path');
 
 const zip = new AdmZip();
 
